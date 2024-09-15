@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 4px;
+  }
+
+  .scrollbar::-webkit-scrollbar-track {
+    visibility: hidden;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb {
+    background: blue;
+    border-radius: 100px;
+    max-height: 10px;
+  }
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
