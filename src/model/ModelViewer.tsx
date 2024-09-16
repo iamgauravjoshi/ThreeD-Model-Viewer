@@ -7,6 +7,7 @@ import ModelCameraPosition from "../components/ModelCameraPosition";
 import ModelHotspotPosition from "../components/ModelHotspotPosition";
 import ModelLights from "../components/ModelLights";
 import Tooltip from "../components/Tooltip";
+import ModelInputForm from "../components/ModelInputForm";
 
 export interface IModelPositionProps {
     x: number;
@@ -22,10 +23,10 @@ interface IModelLights {
     modelLights: IModelLightProps[]
 }
 
-interface IModelLightProps {
+export interface IModelLightProps {
     name: string;
     intensity: number;
-    color: string;
+    color?: string;
 }
 
 const modelLight = {
@@ -34,7 +35,8 @@ const modelLight = {
     color: '#FFFFFF'
 }
 
-const ModelViewer: React.FC<ModelViewerProps> = ({url}: any) => {
+const ModelViewer: React.FC<ModelViewerProps> = () => {
+    const [modelUrl, setModelUrl] = useState<string>("https://files-au-prod.cms.commerce.dynamics.com/cms/api/ddhmcxqxvd/binary/MLq0Z");
     const [modelAxisPosition, setModelAxisPosition] = useState<IModelPositionProps>({
         x: -5,
         y: 0,
@@ -50,49 +52,56 @@ const ModelViewer: React.FC<ModelViewerProps> = ({url}: any) => {
         y: 0.58,
         z: 0
     });
-    const [modelLights, setModelLights] = useState<IModelLightProps[]>([modelLight]);
+    // const [modelLights, setModelLights] = useState<IModelLightProps[]>([modelLight]);
     const [ModelLightProps, setModelLightProps] = useState<IModelLightProps>({
         name: 'ambientLight',
         intensity: 2,
         color: '#FFFFFF'
     });
 
-    const {scene} = useGLTF("https://files-au-prod.cms.commerce.dynamics.com/cms/api/ddhmcxqxvd/binary/MLq0Z");
+    console.log('Model URL: ', modelUrl)
+    const { scene } = useGLTF(modelUrl);
+    // const {scene} = useGLTF("https://files-au-prod.cms.commerce.dynamics.com/cms/api/ddhmcxqxvd/binary/MLq0Z");
 
-    console.log('modelLights; ', modelLights);
+    // console.log('modelLights; ', modelLights);
+    // Skid_Steer URL:- https://files-au-prod.cms.commerce.dynamics.com/cms/api/ddhmcxqxvd/binary/MLidf
 
     return (
         <>
-            <section className={'flex flex-col gap-8 my-4 ml-4 mr-2 pr-4 overflow-y-scroll min-w-[250px] scrollbar'}>
+            <section className={'flex flex-col gap-8 my-4 ml-4 mr-2 pr-4 overflow-y-scroll min-w-[290px] scrollbar'}>
+                <ModelInputForm onSubmit={setModelUrl} />
                 <ModelAxisPosition modelAxisPosition={modelAxisPosition} setModelAxisPosition={setModelAxisPosition}/>
                 <ModelCameraPosition cameraPosition={cameraPosition} setCameraPosition={setCameraPosition}/>
                 <ModelHotspotPosition hotspotPosition={hotspotPosition} setHotspotPosition={setHotspotPosition}/>
-                <ModelLights modelLights={modelLights} setModelLights={setModelLights}/>
+                <ModelLights ModelLightProps={ModelLightProps} setModelLightProps={setModelLightProps}/>
             </section>
 
 
-            <section className={'relative w-full'}>
-                <Tooltip/>
-                <Canvas className="canvasContainer"> {/* camera={{position: [-4, 2.5, 10]}} fov={40} */}
-                    <PerspectiveCamera makeDefault position={[cameraPosition.x, cameraPosition.y, cameraPosition.z]}/>
-                    <ModelLightProps.name intensity={ModelLightProps.intensity} color={ModelLightProps.color}/>
+            {
+                modelUrl && scene &&
+                <section className={'relative w-full'}>
+                    <Tooltip/>
+                    <Canvas className="canvasContainer"> {/* camera={{position: [-4, 2.5, 10]}} fov={40} */}
+                        <PerspectiveCamera makeDefault position={[cameraPosition.x, cameraPosition.y, cameraPosition.z]}/>
+                        <ModelLightProps.name intensity={ModelLightProps.intensity} color={ModelLightProps.color}/>
 
-                    {/*<directionalLight intensity={2} color="#ffffff"/>*/}
-                    {/*<hemisphereLight intensity={2} color="#ffffff"/>*/}
+                        {/*<directionalLight intensity={2} color="#ffffff"/>*/}
+                        {/*<hemisphereLight intensity={2} color="#ffffff"/>*/}
 
-                    <Suspense fallback={null}>
-                        <primitive object={scene}
-                                   position={[modelAxisPosition.x, modelAxisPosition.y, modelAxisPosition.z]}>
-                            <mesh position={[hotspotPosition.x, hotspotPosition.y, hotspotPosition.z]}>
-                                <sphereGeometry args={[0.15, 20, 20]}/>
-                                <meshStandardMaterial color={'#d90429'}/>
-                            </mesh>
-                        </primitive>
-                    </Suspense>
-                    <OrbitControls enableRotate/>
-                    <axesHelper args={[8]}/>
-                </Canvas>
-            </section>
+                        <Suspense fallback={null}>
+                            <primitive object={scene}
+                                       position={[modelAxisPosition.x, modelAxisPosition.y, modelAxisPosition.z]}>
+                                <mesh position={[hotspotPosition.x, hotspotPosition.y, hotspotPosition.z]}>
+                                    <sphereGeometry args={[0.15, 20, 20]}/>
+                                    <meshStandardMaterial color={'#d90429'}/>
+                                </mesh>
+                            </primitive>
+                        </Suspense>
+                        <OrbitControls enableRotate/>
+                        <axesHelper args={[8]}/>
+                    </Canvas>
+                </section>
+            }
         </>
     );
 };
